@@ -1,0 +1,111 @@
+import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
+
+export default function AdminBrandingEditor() {
+  const [shopName, setShopName] = useState('');
+  const [tagline, setTagline] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSaveBranding = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      let imageUrl = null;
+
+      // 1. Upload new hero background image if selected
+      if (imageFile) {
+        const fileName = `bg-${Date.now()}-${imageFile.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('app-uploads')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicURLData } = supabase.storage
+          .from('app-uploads')
+          .getPublicUrl(fileName);
+
+        imageUrl = publicURLData.publicUrl;
+      }
+
+      // 2. Upsert Shop Title, Tagline, and Background into app_settings table
+      const updates = [
+        { setting_key: 'shop_name', setting_value: shopName },
+        { setting_key: 'shop_tagline', setting_value: tagline }
+      ];
+
+      if (imageUrl) {
+        updates.push({ setting_key: 'hero_background', setting_value: imageUrl });
+      }
+
+      for (const update of updates) {
+        if (update.setting_value) {
+          await supabase
+            .from('app_settings')
+            .upsert(update, { onConflict: 'setting_key' });
+        }
+      }
+
+      alert('Shop branding and background updated successfully!');
+      setShopName('');
+      setTagline('');
+      setImageFile(null);
+    } catch (err) {
+      console.error(err);
+      alert('Error updating branding: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="p-6 bg-white rounded-xl shadow-md max-w-xl mx-auto my-6 text-gray-900">
+      <h2 className="text-xl font-bold mb-2">✨ Shop Identity & Hero Background</h2>
+      <p className="text-xs text-gray-500 mb-4">Change your shop's main title, subtitle tagline, or switch out the background hero image instantly.</p>
+      
+      <form onSubmit={handleSaveBranding} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Shop / Studio Name</label>
+          <input 
+            type="text" 
+            value={shopName}
+            onChange={(e) => setShopName(e.target.value)}
+            placeholder="e.g., Solstice Kitchen" 
+            className="w-full border p-2 rounded-lg"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Tagline / Subtitle</label>
+          <input 
+            type="text" 
+            value={tagline}
+            onChange={(e) => setTagline(e.target.value)}
+            placeholder="e.g., Find us by the steam." 
+            className="w-full border p-2 rounded-lg"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">New Hero Background Image</label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            onChange={(e) => setImageFile(e.target.files[0])} 
+            className="text-sm"
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="w-full bg-zinc-900 text-white p-2 rounded-lg font-semibold hover:bg-black disabled:opacity-50"
+        >
+          {loading ? 'Saving Changes...' : 'Publish Branding Updates'}
+        </button>
+      </form>
+    </div>
+  );
+}

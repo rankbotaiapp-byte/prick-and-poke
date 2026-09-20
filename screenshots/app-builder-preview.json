@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "AXIOM",
+      "hasCanvas": false,
+      "bodyTextLen": 507,
+      "bodyTextHash": "a8d300d6e4a91dfa8e8b656b4cb5a477f3ce7941869d64897a22887ff699a56b",
+      "bodyTextPrefix": "ALWAYS PRESENT AXIOM A living halo for studios that book. Barber",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "AXIOM",
+      "hasCanvas": false,
+      "bodyTextLen": 507,
+      "bodyTextHash": "a8d300d6e4a91dfa8e8b656b4cb5a477f3ce7941869d64897a22887ff699a56b",
+      "bodyTextPrefix": "ALWAYS PRESENT AXIOM A living halo for studios that book. Barber",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

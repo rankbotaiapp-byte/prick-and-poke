@@ -1,0 +1,36 @@
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
+import ImageField from './ImageField';
+
+export default function AdminBackgroundEditor({ businessSlug }) {
+  const key = `${businessSlug}:hero_background`;
+  const [url, setUrl] = useState('');
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    supabase.from('app_settings').select('setting_value').eq('setting_key', key).maybeSingle()
+      .then(({ data }) => setUrl(data?.setting_value || ''));
+  }, [key]);
+
+  const persist = async (next) => {
+    const { error } = await supabase.from('app_settings')
+      .upsert({ setting_key: key, setting_value: next }, { onConflict: 'setting_key' });
+    if (error) { setStatus(error.message); return; }
+    setUrl(next);
+    setStatus(next ? 'Background updated' : 'Background removed');
+  };
+
+  return (
+    <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl max-w-xl mx-auto my-6 text-white space-y-3">
+      <h2 className="text-lg font-bold">Front page background</h2>
+      {url && <img src={url} alt="" className="w-full h-36 object-cover rounded-xl" />}
+      <ImageField slug={businessSlug} folder="hero" value={url} onChange={persist} label="Upload new background" />
+      {url && (
+        <button type="button" className="text-xs underline text-zinc-400" onClick={() => persist('')}>
+          Remove background
+        </button>
+      )}
+      {status && <p className="text-xs text-zinc-400">{status}</p>}
+    </div>
+  );
+}
